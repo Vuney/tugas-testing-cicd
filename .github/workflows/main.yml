@@ -1,0 +1,38 @@
+name: Mini Pipeline Pengujian Otomatis
+
+# Kapan test ini dijalankan? (Setiap kali ada push kode baru)
+on: [push]
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. Ambil kode dari repository kamu
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    # 2. Siapkan Python di server GitHub
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+
+    # 3. Install library (Pytest & Requests)
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    # 4. Jalankan Script Testing (Sama seperti yang kamu lakukan di CMD tadi)
+    - name: Run Pytest
+      run: |
+        python -m pytest test_skrip_individu.py --html=laporan-ci.html --self-contained-html
+
+    # 5. Simpan Laporan HTML agar bisa didownload dosen
+    - name: Upload Test Report
+      uses: actions/upload-artifact@v4
+      if: always() # Tetap simpan laporan meskipun test gagal
+      with:
+        name: laporan-hasil-test
+        path: laporan-ci.html
